@@ -18,4 +18,23 @@ class TodoEntity {
     this.date,
     this.time,
   });
+
+  TodoEntity copyWith({
+    String? newCategory,
+    bool? newIsDone,
+    int? newId,
+    String? newContent,
+    DateTime? newDate,
+    TimeOfDay? newTime,
+  }) {
+    return TodoEntity(
+      category: newCategory ?? category,
+      isDone: newIsDone ?? isDone,
+      id: newId ?? id,
+      content: newContent ?? content,
+      createdAt: createdAt,
+      date: newDate ?? date,
+      time: newTime ?? time,
+    );
+  }
 }

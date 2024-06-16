@@ -1,6 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:simple_todo_app/features/todo/domain/usecases/create_todo_usecase.dart';
 import 'package:simple_todo_app/features/todo/domain/usecases/delete_todo_usecase.dart';
+import 'package:simple_todo_app/features/todo/domain/usecases/get_all_todos_by_category_usecase.dart';
 import 'package:simple_todo_app/features/todo/domain/usecases/get_all_todos_usecase.dart';
 import 'package:simple_todo_app/features/todo/domain/usecases/update_todo_usecase.dart';
 import 'package:simple_todo_app/features/todo/presentation/bloc/todo/todo_event.dart';
@@ -11,8 +12,10 @@ class TodoBloc extends Bloc<TodoEvent, TodoState> {
   final DeleteTodoUsecase _deleteTodo;
   final GetAllTodosUsecase _getAllTodos;
   final UpdateTodoUsecase _updateTodo;
+  final GetAllTodosByCategoryUsecase _getAllTodosByCategoryUsecase;
 
   TodoBloc({
+    required GetAllTodosByCategoryUsecase getAllTodosByCategory,
     required GetAllTodosUsecase getAllTodosUsecase,
     required CreateTodoUsecase createTodoUsecase,
     required DeleteTodoUsecase deleteTodoUsecase,
@@ -21,11 +24,14 @@ class TodoBloc extends Bloc<TodoEvent, TodoState> {
         _deleteTodo = deleteTodoUsecase,
         _getAllTodos = getAllTodosUsecase,
         _updateTodo = updateTodoUsecase,
+        _getAllTodosByCategoryUsecase = getAllTodosByCategory,
         super(const TodoLoadingState()) {
     on<CreateTodoEvent>(_onCreateTodoEvent);
-    on<DeleteTodoEvent>(_onDeleteTodoEvent);
-    on<GetAllTodosEvent>(_onGetAllTodosEvent);
+    // on<DeleteTodoEvent>(_onDeleteTodoEvent);
     on<UpdateTodoEvent>(_onUpdateTodoEvent);
+    on<GetAllTodosByCategoryEvent>(_onGetAllTodosByCategoryEvent);
+    on<GetAllTodosEvent>(_onGetAllTodosEvent);
+    on<DeleteTodoEvent>(_onDeleteTodoEvent);
   }
 
   void _onUpdateTodoEvent(
@@ -34,7 +40,7 @@ class TodoBloc extends Bloc<TodoEvent, TodoState> {
 
     updatedTodo.fold(
       (failure) => emit(TodoFailureState(failure: failure)),
-      (todo) => emit(const TodoSuccessState()),
+      (todo) => emit(TodoUpdateSuccessState(todo: todo)),
     );
   }
 
@@ -44,7 +50,7 @@ class TodoBloc extends Bloc<TodoEvent, TodoState> {
 
     newTodo.fold(
       (failure) => emit(TodoFailureState(failure: failure)),
-      (todo) => emit(const TodoSuccessState()),
+      (todo) => emit(TodoCreateSuccessState(todo: todo)),
     );
   }
 
@@ -54,7 +60,17 @@ class TodoBloc extends Bloc<TodoEvent, TodoState> {
 
     isDeleted.fold(
       (failure) => emit(TodoFailureState(failure: failure)),
-      (result) => emit(const TodoSuccessState()),
+      (result) => emit(TodoDeleteSuccessState(id: result)),
+    );
+  }
+
+  void _onGetAllTodosByCategoryEvent(
+      GetAllTodosByCategoryEvent event, Emitter<TodoState> emit) async {
+    final todos = await _getAllTodosByCategoryUsecase(event.category);
+
+    todos.fold(
+      (failure) => emit(TodoFailureState(failure: failure)),
+      (listTodo) => emit(TodoByCategoryLoadingDoneState(todos: listTodo)),
     );
   }
 

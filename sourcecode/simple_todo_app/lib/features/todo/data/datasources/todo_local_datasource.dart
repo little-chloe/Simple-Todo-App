@@ -11,6 +11,16 @@ class TodoLocalDataSource {
 
   const TodoLocalDataSource({required this.database});
 
+  Future<List<TodoModel>> getAllTodosByCategory(String category) async {
+    try {
+      List<Map<String, dynamic>> jsonData = await database.query(kTodoTable,
+          where: '${TodoJsonKey.kCategory} = ?', whereArgs: [category]);
+      return jsonData.map((data) => TodoModel.fromJson(data)).toList();
+    } catch (e) {
+      throw CacheException();
+    }
+  }
+
   Future<List<TodoModel>> getAllTodos() async {
     try {
       List<Map<String, dynamic>> jsonData = await database.query(kTodoTable);

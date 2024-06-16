@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:simple_todo_app/core/constants/app_design_size.dart';
 import 'package:simple_todo_app/core/themes/colors.dart';
 
-class CategoryPicker extends StatefulWidget {
+class CategoryPickerItem extends StatefulWidget {
   final String selectedCategory;
   final String title;
   final int task;
   final List<Color> colors;
   final void Function(String title) handleSelected;
 
-  const CategoryPicker({
+  const CategoryPickerItem({
     super.key,
     required this.selectedCategory,
     required this.handleSelected,
@@ -19,10 +19,10 @@ class CategoryPicker extends StatefulWidget {
   });
 
   @override
-  State<CategoryPicker> createState() => _CategoryPickerState();
+  State<CategoryPickerItem> createState() => _CategoryPickerItemState();
 }
 
-class _CategoryPickerState extends State<CategoryPicker> {
+class _CategoryPickerItemState extends State<CategoryPickerItem> {
   @override
   Widget build(BuildContext context) {
     final deviceWidth = MediaQuery.of(context).size.width;

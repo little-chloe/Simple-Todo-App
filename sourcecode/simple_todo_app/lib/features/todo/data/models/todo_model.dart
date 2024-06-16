@@ -13,6 +13,7 @@ class TodoModel extends TodoEntity {
     super.time,
   });
 
+  @override
   TodoModel copyWith({
     String? newCategory,
     bool? newIsDone,
@@ -37,27 +38,32 @@ class TodoModel extends TodoEntity {
       TodoJsonKey.kId: id,
       TodoJsonKey.kContent: content,
       TodoJsonKey.kCreatedAt: createdAt.toString(),
-      TodoJsonKey.kDate: date.toString(),
-      TodoJsonKey.kTime: time.toString(),
+      TodoJsonKey.kDate: date != null ? date.toString() : 'null',
+      TodoJsonKey.kTime:
+          time != null ? '${time!.hour}:${time!.minute}' : 'null',
       TodoJsonKey.kCategory: category,
-      TodoJsonKey.kIsDone: isDone,
+      TodoJsonKey.kIsDone: isDone.toString(),
     };
   }
 
   factory TodoModel.fromJson(Map<String, dynamic> json) {
     return TodoModel(
       id: json[TodoJsonKey.kId],
+      category: json[TodoJsonKey.kCategory],
       content: json[TodoJsonKey.kContent],
       createdAt: DateTime.parse(json[TodoJsonKey.kCreatedAt]),
-      date: DateTime.parse(json[TodoJsonKey.kDate]),
-      time: TimeOfDay(
-        hour: int.parse(json[TodoJsonKey.kTime].split(':')[0]),
-        minute: int.parse(
-          json[TodoJsonKey.kTime].split(':')[1],
-        ),
-      ),
-      category: json[TodoJsonKey.kCategory],
-      isDone: json[TodoJsonKey.kIsDone],
+      time: json[TodoJsonKey.kTime] != 'null'
+          ? TimeOfDay(
+              hour: int.parse(json[TodoJsonKey.kTime].split(':')[0]),
+              minute: int.parse(
+                json[TodoJsonKey.kTime].split(':')[1],
+              ),
+            )
+          : null,
+      date: json[TodoJsonKey.kDate] != 'null'
+          ? DateTime.parse(json[TodoJsonKey.kDate])
+          : null,
+      isDone: bool.parse(json[TodoJsonKey.kIsDone]),
     );
   }
 

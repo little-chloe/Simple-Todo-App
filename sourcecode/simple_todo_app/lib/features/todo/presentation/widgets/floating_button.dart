@@ -16,23 +16,20 @@ class FloatingButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 24),
-      child: SizedBox(
-        width: (64 / AppDesignSize.width) * MediaQuery.of(context).size.width,
-        height: (64 / AppDesignSize.width) * MediaQuery.of(context).size.width,
-        child: FloatingActionButton(
-          onPressed: () {
-            _handleNavigateAddTodoPage(context);
-          },
-          backgroundColor: AppColors.colorWhite,
-          shape: const CircleBorder(),
-          elevation: 12,
-          child: const Icon(
-            Icons.add,
-            color: AppColors.colorBlue,
-            size: 32,
-          ),
+    return SizedBox(
+      width: (64 / AppDesignSize.width) * MediaQuery.of(context).size.width,
+      height: (64 / AppDesignSize.width) * MediaQuery.of(context).size.width,
+      child: FloatingActionButton(
+        onPressed: () {
+          _handleNavigateAddTodoPage(context);
+        },
+        backgroundColor: AppColors.colorWhite,
+        shape: const CircleBorder(),
+        elevation: 12,
+        child: const Icon(
+          Icons.add,
+          color: AppColors.colorBlue,
+          size: 32,
         ),
       ),
     );

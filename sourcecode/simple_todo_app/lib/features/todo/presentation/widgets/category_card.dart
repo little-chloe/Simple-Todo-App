@@ -1,17 +1,39 @@
 import 'package:flutter/material.dart';
 import 'package:simple_todo_app/core/constants/app_design_size.dart';
+import 'package:simple_todo_app/features/todo/domain/entities/todo_entity.dart';
+import 'package:simple_todo_app/features/todo/presentation/widgets/category_bottom_sheet.dart';
 
-class CategoryCard extends StatelessWidget {
+class CategoryCard extends StatefulWidget {
   final String title;
-  final int tasks;
   final List<Color> colors;
+  final List<TodoEntity> todos;
 
   const CategoryCard({
+    required this.todos,
     required this.colors,
-    required this.tasks,
     required this.title,
     super.key,
   });
+
+  @override
+  State<CategoryCard> createState() => _CategoryCardState();
+}
+
+class _CategoryCardState extends State<CategoryCard> {
+  void _handleOnTapCategory() {
+    final deviceHeight = MediaQuery.of(context).size.height;
+
+    showBottomSheet(
+      context: context,
+      builder: (context) {
+        return CategoryBottomSheet(
+          category: widget.title,
+          deviceHeight: deviceHeight,
+          colors: widget.colors,
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +48,7 @@ class CategoryCard extends StatelessWidget {
             AppDesignSize.height,
       ),
       child: InkWell(
-        onTap: () {},
+        onTap: _handleOnTapCategory,
         child: Container(
           padding: EdgeInsets.symmetric(
             horizontal:
@@ -36,24 +58,24 @@ class CategoryCard extends StatelessWidget {
           ),
           width: double.infinity,
           decoration: BoxDecoration(
-            color: colors[2],
+            color: widget.colors[2],
             borderRadius: BorderRadius.circular(12),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                title,
+                widget.title,
                 style: TextStyle(
-                  color: colors[0],
+                  color: widget.colors[0],
                   fontSize: 19,
                   fontWeight: FontWeight.w600,
                 ),
               ),
               Text(
-                '$tasks ${tasks > 1 ? 'tasks' : 'task'}',
+                '${widget.todos.length} ${widget.todos.length > 1 ? 'tasks' : 'task'}',
                 style: TextStyle(
-                  color: colors[1],
+                  color: widget.colors[1],
                   fontSize: 14,
                 ),
               ),

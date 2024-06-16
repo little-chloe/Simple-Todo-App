@@ -36,10 +36,21 @@ class TodoRepositoryImpl implements TodoRepository {
   }
 
   @override
-  Future<Either<Failure, bool>> deleteTodo(int id) async {
+  Future<Either<Failure, List<TodoEntity>>> getAllTodosByCategory(
+      String category) async {
     try {
-      final isDeleted = await todoLocalDataSource.deleteTodo(id);
-      return Right(isDeleted);
+      final todos = await todoLocalDataSource.getAllTodosByCategory(category);
+      return Right(todos);
+    } on CacheException {
+      return Left(CacheFailure(errorMessage: 'Cache error occur.'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, int>> deleteTodo(int id) async {
+    try {
+      await todoLocalDataSource.deleteTodo(id);
+      return Right(id);
     } on CacheException {
       return Left(CacheFailure(errorMessage: 'Cache error occur.'));
     }

@@ -7,6 +7,7 @@ import 'package:simple_todo_app/features/todo/data/repositories/todo_repository_
 import 'package:simple_todo_app/features/todo/domain/repositories/todo_repository.dart';
 import 'package:simple_todo_app/features/todo/domain/usecases/create_todo_usecase.dart';
 import 'package:simple_todo_app/features/todo/domain/usecases/delete_todo_usecase.dart';
+import 'package:simple_todo_app/features/todo/domain/usecases/get_all_todos_by_category_usecase.dart';
 import 'package:simple_todo_app/features/todo/domain/usecases/get_all_todos_usecase.dart';
 import 'package:simple_todo_app/features/todo/domain/usecases/update_todo_usecase.dart';
 import 'package:simple_todo_app/features/todo/presentation/bloc/todo/todo_bloc.dart';
@@ -26,10 +27,10 @@ Future<void> initializeDependencies() async {
           id INTEGER PRIMARY KEY,
           category TEXT,
           content TEXT,
-          created_at TEXT
-          time TEXT
+          created_at TEXT,
+          time TEXT,
           date TEXT,
-          is_done INTEGER 
+          is_done TEXT 
         )
       ''');
     },
@@ -42,7 +43,8 @@ Future<void> initializeDependencies() async {
   getIt.registerSingleton(TodoLocalDataSource(database: database));
 
   // repositories
-  getIt.registerSingleton<TodoRepository>(TodoRepositoryImpl(todoLocalDataSource: getIt()));
+  getIt.registerSingleton<TodoRepository>(
+      TodoRepositoryImpl(todoLocalDataSource: getIt()));
 
   // usecase
   getIt.registerSingleton(CreateTodoUsecase(todoRepository: getIt()));
@@ -53,9 +55,13 @@ Future<void> initializeDependencies() async {
 
   getIt.registerSingleton(UpdateTodoUsecase(todoRepository: getIt()));
 
+  getIt
+      .registerSingleton(GetAllTodosByCategoryUsecase(todoRepository: getIt()));
+
   // bloc
   getIt.registerFactory(
     () => TodoBloc(
+      getAllTodosByCategory: getIt(),
       createTodoUsecase: getIt(),
       deleteTodoUsecase: getIt(),
       getAllTodosUsecase: getIt(),

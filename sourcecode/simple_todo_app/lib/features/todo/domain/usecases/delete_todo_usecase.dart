@@ -7,7 +7,7 @@ class DeleteTodoUsecase {
 
   const DeleteTodoUsecase({required this.todoRepository});
 
-  Future<Either<Failure, bool>> call(int id) {
+  Future<Either<Failure, int>> call(int id) {
     return todoRepository.deleteTodo(id);
   }
 }

@@ -22,6 +22,15 @@ class TodoLoadingDoneState extends TodoState {
   List<Object?> get props => [todos];
 }
 
+class TodoByCategoryLoadingDoneState extends TodoState {
+  final List<TodoEntity> todos;
+
+  const TodoByCategoryLoadingDoneState({required this.todos});
+
+  @override
+  List<Object?> get props => [todos];
+}
+
 class TodoFailureState extends TodoState {
   final Failure failure;
 
@@ -31,6 +40,28 @@ class TodoFailureState extends TodoState {
   List<Object?> get props => [failure];
 }
 
-class TodoSuccessState extends TodoState {
-  const TodoSuccessState();
+class TodoCreateSuccessState extends TodoState {
+  final TodoEntity todo;
+  const TodoCreateSuccessState({required this.todo});
+
+  @override
+  List<Object?> get props => [todo];
+}
+
+class TodoUpdateSuccessState extends TodoState {
+  final TodoEntity todo;
+
+  const TodoUpdateSuccessState({required this.todo});
+
+  @override
+  List<Object?> get props => [todo];
+}
+
+class TodoDeleteSuccessState extends TodoState {
+  final int id;
+
+  const TodoDeleteSuccessState({required this.id});
+
+  @override
+  List<Object?> get props => [id];
 }

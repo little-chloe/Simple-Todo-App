@@ -37,4 +37,16 @@ class DeleteTodoEvent extends TodoEvent {
 
 class GetAllTodosEvent extends TodoEvent {
   const GetAllTodosEvent();
+
+  @override
+  List<Object?> get props => [];
+}
+
+class GetAllTodosByCategoryEvent extends TodoEvent {
+  final String category;
+
+  const GetAllTodosByCategoryEvent({required this.category});
+
+  @override
+  List<Object?> get props => [category];
 }

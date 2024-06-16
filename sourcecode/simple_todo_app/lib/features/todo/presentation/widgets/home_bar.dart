@@ -28,12 +28,12 @@ class HomeBar extends StatelessWidget {
               ),
             ),
           ),
-          IconButton(
-            onPressed: () {},
-            icon: const Icon(Icons.more_horiz),
-            color: AppColors.colorBlue,
-            iconSize: 32,
-          ),
+          // IconButton(
+          //   onPressed: () {},
+          //   icon: const Icon(Icons.more_horiz),
+          //   color: AppColors.colorBlue,
+          //   iconSize: 32,
+          // ),
         ],
       ),
     );

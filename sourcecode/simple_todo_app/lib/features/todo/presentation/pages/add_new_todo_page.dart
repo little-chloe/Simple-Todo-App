@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:simple_todo_app/core/constants/app_design_size.dart';
 import 'package:simple_todo_app/core/themes/colors.dart';
+import 'package:simple_todo_app/core/utils/convert_date_to_string.dart';
+import 'package:simple_todo_app/core/utils/convert_time_to_string.dart';
 import 'package:simple_todo_app/core/utils/get_selected_category_color.dart';
 import 'package:simple_todo_app/features/todo/domain/entities/todo_entity.dart';
 import 'package:simple_todo_app/features/todo/presentation/bloc/todo/todo_bloc.dart';
 import 'package:simple_todo_app/features/todo/presentation/bloc/todo/todo_event.dart';
 import 'package:simple_todo_app/features/todo/presentation/bloc/todo/todo_state.dart';
-import 'package:simple_todo_app/features/todo/presentation/widgets/category_picker_item.dart';
+import 'package:simple_todo_app/features/todo/presentation/widgets/category_picker.dart';
 
 class AddNewTodoPage extends StatefulWidget {
   const AddNewTodoPage({super.key});
@@ -17,18 +19,24 @@ class AddNewTodoPage extends StatefulWidget {
 }
 
 class _AddNewTodoPageState extends State<AddNewTodoPage> {
-  bool _showDatePicker = false;
-  bool _showTimePicker = false;
   bool _showCategoryPicker = false;
   String _selectedCategory = 'Inbox';
+  DateTime? _selectedDate;
+  TimeOfDay? _selectedTime;
   String _content = '';
 
   void _handleCreateTodo() {
+    FocusScope.of(context).unfocus();
+    setState(() {
+      _showCategoryPicker = false;
+    });
     TodoEntity todo = TodoEntity(
       content: _content,
       category: _selectedCategory,
       isDone: false,
       createdAt: DateTime.now(),
+      date: _selectedDate,
+      time: _selectedTime,
     );
     context.read<TodoBloc>().add(CreateTodoEvent(todo: todo));
   }
@@ -37,37 +45,53 @@ class _AddNewTodoPageState extends State<AddNewTodoPage> {
     Navigator.of(context).pop();
   }
 
-  void _handleShowDatePicker() {
+  void _handleShowDatePicker() async {
     FocusScope.of(context).unfocus();
     setState(() {
-      _showDatePicker = true;
-      _showTimePicker = false;
       _showCategoryPicker = false;
     });
+
+    final date = await showDatePicker(
+      initialDate: DateTime.now(),
+      context: context,
+      firstDate: DateTime(DateTime.now().year - 100),
+      lastDate: DateTime(DateTime.now().year + 100),
+    );
+
+    if (date != null) {
+      setState(() {
+        _selectedDate = date;
+      });
+    }
   }
 
-  void _handleShowTimePicker() {
+  void _handleShowTimePicker() async {
     FocusScope.of(context).unfocus();
     setState(() {
-      _showDatePicker = false;
-      _showTimePicker = true;
       _showCategoryPicker = false;
     });
+    final time = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.now(),
+    );
+
+    if (time != null) {
+      setState(() {
+        _selectedTime = time;
+      });
+    }
   }
 
   void _handshowCategoryPicker() {
+    context.read<TodoBloc>().add(const GetAllTodosEvent());
     FocusScope.of(context).unfocus();
     setState(() {
-      _showDatePicker = false;
-      _showTimePicker = false;
       _showCategoryPicker = true;
     });
   }
 
   void _handleCloseAllShowWidget() {
     setState(() {
-      _showDatePicker = false;
-      _showTimePicker = false;
       _showCategoryPicker = false;
     });
   }
@@ -89,116 +113,25 @@ class _AddNewTodoPageState extends State<AddNewTodoPage> {
     final deviceWidth = MediaQuery.of(context).size.width;
     final deviceHeight = MediaQuery.of(context).size.height;
 
-    late Widget showWidget;
-
-    if (_showDatePicker) {
-      showWidget = CalendarDatePicker(
-        initialDate: DateTime.now(),
-        firstDate: DateTime.now(),
-        lastDate: DateTime.now(),
-        onDateChanged: (date) {},
-      );
-    }
-
-    if (_showCategoryPicker) {
-      showWidget = Container(
-        padding: EdgeInsets.symmetric(
-          horizontal: deviceWidth * 16 / AppDesignSize.width,
-        ),
-        height: deviceHeight * 377 / AppDesignSize.height,
-        width: double.infinity,
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              CategoryPicker(
-                selectedCategory: _selectedCategory,
-                handleSelected: _handleSelectCategory,
-                colors: [
-                  AppColors.colorBlack.withOpacity(0.9),
-                  AppColors.colorBlack.withOpacity(0.5),
-                  AppColors.colorListGrey,
-                ],
-                task: 1,
-                title: 'Inbox',
+    return Scaffold(
+      backgroundColor: AppColors.colorWhite,
+      body: BlocConsumer<TodoBloc, TodoState>(
+        listener: (context, state) {
+          if (state is TodoCreateSuccessState) {
+            Navigator.of(context).pop();
+          }
+          if (state is TodoFailureState) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  state.failure.errorMessage,
+                ),
               ),
-              CategoryPicker(
-                selectedCategory: _selectedCategory,
-                handleSelected: _handleSelectCategory,
-                colors: [
-                  AppColors.colorWhite.withOpacity(0.9),
-                  AppColors.colorWhite.withOpacity(0.5),
-                  AppColors.colorListGreen,
-                ],
-                task: 2,
-                title: 'Work',
-              ),
-              CategoryPicker(
-                selectedCategory: _selectedCategory,
-                handleSelected: _handleSelectCategory,
-                colors: [
-                  AppColors.colorWhite.withOpacity(0.9),
-                  AppColors.colorWhite.withOpacity(0.5),
-                  AppColors.colorListRed,
-                ],
-                task: 3,
-                title: 'Shopping',
-              ),
-              CategoryPicker(
-                selectedCategory: _selectedCategory,
-                handleSelected: _handleSelectCategory,
-                colors: [
-                  AppColors.colorBlack.withOpacity(0.9),
-                  AppColors.colorBlack.withOpacity(0.5),
-                  AppColors.colorListYellow,
-                ],
-                task: 1,
-                title: 'Family',
-              ),
-              CategoryPicker(
-                selectedCategory: _selectedCategory,
-                handleSelected: _handleSelectCategory,
-                colors: const [
-                  AppColors.colorWhite,
-                  AppColors.colorWhite,
-                  AppColors.colorListPurple,
-                ],
-                task: 4,
-                title: 'Personal',
-              ),
-            ],
-          ),
-        ),
-      );
-    }
-
-    return BlocConsumer<TodoBloc, TodoState>(
-      listener: (context, state) {
-        if (state is TodoSuccessState) {
-          Navigator.of(context).pop();
-        }
-        if (state is TodoFailureState) {
-          showDialog(
-            context: context,
-            builder: (context) {
-              return AlertDialog(
-                title: Text(state.failure.errorMessage),
-                actions: [
-                  TextButton(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                    child: const Text('Ok'),
-                  ),
-                ],
-              );
-            },
-          );
-        }
-      },
-      builder: (context, state) {
-        return Scaffold(
-          backgroundColor: AppColors.colorWhite,
-          body: Padding(
+            );
+          }
+        },
+        builder: (context, state) {
+          return Padding(
             padding: EdgeInsets.only(
               top: deviceHeight * 44 / AppDesignSize.height,
             ),
@@ -207,9 +140,10 @@ class _AddNewTodoPageState extends State<AddNewTodoPage> {
                 Container(
                   padding: EdgeInsets.symmetric(
                     horizontal: deviceWidth * 16 / AppDesignSize.width / 2,
+                    vertical:
+                        deviceHeight * (44 - 22) / 2 / AppDesignSize.height,
                   ),
                   width: double.infinity,
-                  height: deviceHeight * 44 / AppDesignSize.height,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.center,
@@ -282,6 +216,58 @@ class _AddNewTodoPageState extends State<AddNewTodoPage> {
                                   ),
                                 ),
                               ),
+                              Row(
+                                children: [
+                                  if (_selectedDate != null)
+                                    Row(
+                                      children: [
+                                        Icon(
+                                          Icons.calendar_month,
+                                          color: AppColors.colorBlack
+                                              .withOpacity(0.3),
+                                          size: 16,
+                                        ),
+                                        Text(
+                                          ConvertDateToString.dateToString(
+                                              _selectedDate!),
+                                          style: TextStyle(
+                                            color: AppColors.colorBlack
+                                                .withOpacity(0.3),
+                                          ),
+                                        )
+                                      ],
+                                    ),
+                                  if (_selectedDate != null)
+                                    SizedBox(
+                                      width: deviceWidth *
+                                          (131 - 60 - 59) /
+                                          AppDesignSize.width,
+                                    ),
+                                  if (_selectedTime != null)
+                                    Row(
+                                      children: [
+                                        Icon(
+                                          Icons.alarm,
+                                          color: AppColors.colorBlack
+                                              .withOpacity(0.3),
+                                          size: 16,
+                                        ),
+                                        Text(
+                                          ConvertTimeToString.timeToString(
+                                              _selectedTime!),
+                                          style: TextStyle(
+                                            color: AppColors.colorBlack
+                                                .withOpacity(0.3),
+                                          ),
+                                        )
+                                      ],
+                                    ),
+                                ],
+                              ),
+                              SizedBox(
+                                height:
+                                    deviceHeight * 16 / AppDesignSize.height,
+                              ),
                             ],
                           ),
                         ),
@@ -353,13 +339,17 @@ class _AddNewTodoPageState extends State<AddNewTodoPage> {
                     ],
                   ),
                 ),
-                if (_showCategoryPicker || _showDatePicker || _showTimePicker)
-                  showWidget,
+                if (_showCategoryPicker && state is TodoLoadingDoneState)
+                  CategoryPicker(
+                    handleSelectedCategory: _handleSelectCategory,
+                    selectedCategory: _selectedCategory,
+                    todos: state.todos,
+                  ),
               ],
             ),
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 }
